@@ -37,21 +37,34 @@ function render(state){
 
 
     document.querySelector('form').addEventListener('submit', (event) => {
+        var newProduct;
+
         event.preventDefault();
   
-        console.log('look ->', Array
-        .from(event.target.elements)
-        .map((element) => ({ 'name': element.name, 'value': element.value }))
-        .reduce(
-            (accumulator, original) => {
-                accumulator[original.name] = original.value;
-                return accumulator;
-            }, 
-            {}
-        ))
-        ;
+        newProduct = Array
+            .from(event.target.elements)
+            .map((element) => ({ 'name': element.name, 'value': element.value }))
+            .filter((element) => element.name)
+            .reduce(
+                (accumulator, original) => {
+                    if(original.name === 'selling_points'){
+                        accumulator[original.name] = original.value.split('\n');
+                    }
+                    else{
+                        accumulator[original.name] = original.value;
+                    }
+                    
+                    return accumulator;
+                },
+                {}
+            );
 
-        
+        axios
+            .post(`https://api.savvycoders.com/${newProduct.type}s`, newProduct)
+            .then((response) => console.log('this is the response ->', response));
+
+        State[`${newProduct.type}s`].push(newProduct);
+
         render(State);
     });
 }
